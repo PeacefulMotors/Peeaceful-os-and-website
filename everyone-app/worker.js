@@ -1,14 +1,18 @@
 const SUPABASE_BASE = "https://xsqjskbcmsjzkumbsrti.supabase.co/functions/v1";
 
+// IMPORTANT: Do not bind this Worker to peacefulmotors.com, app., os., beta.,
+// or book. Those hostnames already serve live Peaceful Motors surfaces.
+// This router is only for new, non-destructive app hostnames.
 const HOST_TO_FUNCTION = {
   "inspect.peacefulmotors.com": "inspect",
   "owner.peacefulmotors.com": "owner-app",
   "tech.peacefulmotors.com": "tech-app",
   "customer.peacefulmotors.com": "customer-app",
-  "book.peacefulmotors.com": "booking-page",
+  "booking.peacefulmotors.com": "booking-page",
   "schedule.peacefulmotors.com": "scheduler",
   "customers.peacefulmotors.com": "customer-database-app",
-  "beta.peacefulmotors.com": "peaceful-tools",
+  "contacts.peacefulmotors.com": "customer-database-app",
+  "academy.peacefulmotors.com": "shop-app-academy",
 };
 
 function securityHeaders(headers) {
@@ -44,14 +48,14 @@ export default {
     init.headers.set("X-Peaceful-Edge", "cloudflare");
     init.headers.delete("host");
 
-    if (!['GET', 'HEAD'].includes(request.method)) {
+    if (!["GET", "HEAD"].includes(request.method)) {
       init.body = request.body;
     }
 
     let response;
     try {
       response = await fetch(upstream.toString(), init);
-    } catch (error) {
+    } catch {
       return new Response("Peaceful OS upstream temporarily unavailable", {
         status: 502,
         headers: securityHeaders(new Headers({ "content-type": "text/plain; charset=utf-8" })),
