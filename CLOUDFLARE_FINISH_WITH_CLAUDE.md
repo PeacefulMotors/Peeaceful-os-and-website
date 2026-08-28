@@ -9,69 +9,78 @@ You are finishing the production edge connection for Peaceful Motors. Do not red
 - Payments: Stripe
 - Notion is the operating brain/spec, not the transactional database.
 
+## NON-DESTRUCTIVE ROUTE DECISION — AUG 28 2026
+The live route audit found real conflicts. Preserve working hostnames instead of overwriting them.
+
+DO NOT CHANGE OR BIND THIS NEW ROUTER TO:
+- `peacefulmotors.com` or `www.peacefulmotors.com` — live marketing site.
+- `peacefulmotors.com/book` — current public Peaceful Motors booking form.
+- `app.peacefulmotors.com` — existing staff app surface.
+- `os.peacefulmotors.com` — existing app surface pending visual confirmation.
+- `beta.peacefulmotors.com` — existing beta/app host and referenced by the live public Worker.
+- `book.peacefulmotors.com` — current staff-used internal Contact Book. Preserve it until a deliberate migration is approved.
+
+The new Worker router is only for new or currently-unresolved hostnames:
+
+| Host | Supabase function | Purpose |
+|---|---|---|
+| inspect.peacefulmotors.com | inspect | Inspection app |
+| owner.peacefulmotors.com | owner-app | Owner/admin app |
+| tech.peacefulmotors.com | tech-app | Technician app |
+| customer.peacefulmotors.com | customer-app | Customer portal |
+| booking.peacefulmotors.com | booking-page | Standalone booking app for future external/shop subscription use |
+| schedule.peacefulmotors.com | scheduler | Scheduler app |
+| customers.peacefulmotors.com | customer-database-app | Customer database app |
+| contacts.peacefulmotors.com | customer-database-app | Canon-compatible alias for customer/contact database |
+| academy.peacefulmotors.com | shop-app-academy | Training/academy app |
+
+`customers.` and `contacts.` intentionally point to the same canonical customer/contact database app. They do not create duplicate data.
+
 ## Already prepared in GitHub
 - `everyone-app/worker.js`
 - `everyone-app/wrangler.jsonc`
 - `.github/workflows/deploy-cloudflare-app-router.yml`
 
-The Worker is a single free-first edge router that maps these custom domains to existing live Supabase functions:
-
-| Host | Supabase function |
-|---|---|
-| inspect.peacefulmotors.com | inspect |
-| owner.peacefulmotors.com | owner-app |
-| tech.peacefulmotors.com | tech-app |
-| customer.peacefulmotors.com | customer-app |
-| book.peacefulmotors.com | booking-page |
-| schedule.peacefulmotors.com | scheduler |
-| customers.peacefulmotors.com | customer-database-app |
-| beta.peacefulmotors.com | peaceful-tools |
-
 ## Your job
 1. Open the connected Cloudflare account that owns `peacefulmotors.com`.
-2. Verify the zone is active and authoritative. Do not change nameservers unless the zone is not actually delegated to Cloudflare and the owner explicitly approves that correction.
-3. Create a scoped Cloudflare API token for Workers deployment if one does not already exist. Minimum required permissions only. Never print or commit the token.
-4. Add GitHub repository secrets:
-   - `CLOUDFLARE_API_TOKEN`
-   - `CLOUDFLARE_ACCOUNT_ID`
-   Do not put either value in source files, Notion, logs, screenshots, or chat.
-5. From the repository root, inspect `everyone-app/wrangler.jsonc` and `everyone-app/worker.js`. Preserve the existing mappings unless a function is proven wrong.
-6. Run a Wrangler dry-run/validation first. Fix syntax/config only. Do not redesign app code.
+2. Verify the zone is active and authoritative. Do not change nameservers unless the zone is not delegated to Cloudflare and the owner explicitly approves that correction.
+3. Create/use a scoped Cloudflare API token for Workers deployment. Minimum required permissions only. Never print or commit the token.
+4. Add GitHub repository secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` directly in GitHub if permitted. Never put either value in source, Notion, logs, screenshots, or chat.
+5. Inspect `everyone-app/wrangler.jsonc` and `everyone-app/worker.js`. Use the current GitHub version as canonical for this router.
+6. Run Wrangler validation/dry-run first. Fix syntax/config only.
 7. Deploy `peaceful-os-app-router` to Cloudflare Workers.
-8. Ensure all eight `custom_domain` routes are attached to the `peacefulmotors.com` zone and Cloudflare provisions HTTPS certificates.
-9. If a hostname already has an A/AAAA/CNAME record that conflicts with the Worker custom domain, inspect what it serves before changing it. Preserve the current main website. Only replace records for the eight app hostnames listed above when needed.
-10. Do NOT point `peacefulmotors.com` or `www.peacefulmotors.com` at this app router. The main website is separate.
-11. Test each hostname on HTTPS from a clean browser session and record response status and final URL.
+8. Attach only the new non-destructive custom domains listed above. Provision HTTPS.
+9. Before touching any existing DNS record, inspect what it currently serves. Do not overwrite a working hostname merely because an older document uses the same name.
+10. Do not bind this router to root/www/app/os/beta/book.
+11. Test each new hostname from a clean browser and record status/final URL.
 12. Test mobile Safari dimensions and desktop Chrome. Confirm no horizontal overflow or broken modal behavior.
-13. Verify auth/RLS behavior:
-    - customer sees only their own customer/vehicle/job/estimate data;
-    - technician sees only assigned/permitted work;
-    - owner/admin sees shop administration;
-    - customer database requires staff auth;
-    - no anonymous endpoint exposes private customer/shop records.
-14. Test booking once with a clearly marked test customer and confirm it creates exactly one booking and does not duplicate customer/vehicle/job records.
-15. Test inspection once with a clearly marked test vehicle/job and confirm findings/report flow works.
-16. Do not run live Stripe charges. Use test mode for payment/subscription verification.
-17. Preserve Supabase as source of truth. The Cloudflare Worker is the branded edge/front door, not a second database.
-18. Keep the deployment free-first. One Worker is preferred over separate Workers for every role app.
-19. If Cloudflare rejects `custom_domain` routes, diagnose the exact account/zone/token error and fix only that problem. Do not fall back to WordPress, Vercel, Netlify, or a paid platform.
-20. Once all tests pass, update the Notion page `Peaceful OS Beta Program — Customer + Technician + Owner Testing` with:
-    - deployed Worker name;
-    - deployment timestamp;
-    - each live HTTPS URL;
-    - test result for each URL;
-    - Git commit SHA deployed;
-    - unresolved issues, if any.
+13. Verify auth/RLS behavior: customer sees only their own records; technician only assigned/permitted work; owner/admin shop administration; customer database requires staff auth; anonymous access exposes no private records.
+14. Test one clearly-marked booking and confirm exactly one booking with no duplicate customer/vehicle/job records.
+15. Test one clearly-marked inspection and confirm VIN/odometer/findings/report flow.
+16. Do not run live Stripe charges. Use test mode.
+17. Preserve Supabase as source of truth. Cloudflare is branded edge/front door only.
+18. Keep deployment free-first. One Worker is preferred over separate Workers for every role app.
+19. If Cloudflare rejects a custom domain, report the exact token/zone/account/DNS error and fix only that issue. Do not fall back to WordPress, Vercel, Netlify, or paid hosting.
+20. Update the Notion pages `Peaceful OS - finish and launch checklist` and `Peaceful OS Beta Program — Customer + Technician + Owner Testing` with deployed Worker name, timestamp, live URLs, PASS/FAIL per URL, deployed commit SHA, and unresolved issues.
 
-## Required final URLs
+## Required new URLs
 - https://inspect.peacefulmotors.com
 - https://owner.peacefulmotors.com
 - https://tech.peacefulmotors.com
 - https://customer.peacefulmotors.com
-- https://book.peacefulmotors.com
+- https://booking.peacefulmotors.com
 - https://schedule.peacefulmotors.com
 - https://customers.peacefulmotors.com
+- https://contacts.peacefulmotors.com
+- https://academy.peacefulmotors.com
+
+## Existing URLs to preserve
+- https://peacefulmotors.com
+- https://peacefulmotors.com/book
+- https://app.peacefulmotors.com
+- https://os.peacefulmotors.com
 - https://beta.peacefulmotors.com
+- https://book.peacefulmotors.com
 
 ## Hard rules
 - No WordPress for these apps.
@@ -82,4 +91,4 @@ The Worker is a single free-first edge router that maps these custom domains to 
 - No copying proprietary Identifix/PartsTech/OEM datasets or UI assets.
 - Do not claim LIVE until DNS, HTTPS, auth/RLS, and fresh-device smoke tests pass.
 
-Return a concise deployment report with PASS/FAIL for every hostname and the exact blocker for any failure.
+Return a concise deployment report with PASS/FAIL for every new hostname and the exact blocker for any failure.
