@@ -8,9 +8,10 @@
     { "pattern": "owner.peacefulmotors.com", "custom_domain": true },
     { "pattern": "tech.peacefulmotors.com", "custom_domain": true },
     { "pattern": "customer.peacefulmotors.com", "custom_domain": true },
-    { "pattern": "book.peacefulmotors.com", "custom_domain": true },
+    { "pattern": "booking.peacefulmotors.com", "custom_domain": true },
     { "pattern": "schedule.peacefulmotors.com", "custom_domain": true },
     { "pattern": "customers.peacefulmotors.com", "custom_domain": true },
-    { "pattern": "beta.peacefulmotors.com", "custom_domain": true }
+    { "pattern": "contacts.peacefulmotors.com", "custom_domain": true },
+    { "pattern": "academy.peacefulmotors.com", "custom_domain": true }
   ]
 }
