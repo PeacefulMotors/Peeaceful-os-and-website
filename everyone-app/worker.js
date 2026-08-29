@@ -23,6 +23,11 @@ function securityHeaders(headers) {
   return headers;
 }
 
+function looksLikeHtml(text) {
+  const start = text.slice(0, 512).trimStart().toLowerCase();
+  return start.startsWith("<!doctype html") || start.startsWith("<html") || start.includes("<head") || start.includes("<body");
+}
+
 export default {
   async fetch(request) {
     const incoming = new URL(request.url);
@@ -63,6 +68,26 @@ export default {
     }
 
     const headers = securityHeaders(new Headers(response.headers));
+    const contentType = (headers.get("content-type") || "").toLowerCase();
+    const wantsHtml = (request.headers.get("accept") || "").toLowerCase().includes("text/html");
+
+    // Some Supabase Edge Functions return complete HTML documents with the default
+    // text/plain content type. With X-Content-Type-Options: nosniff, browsers correctly
+    // refuse to render those responses as HTML and show source text instead. Only
+    // normalize the MIME type when a browser asked for HTML and the payload actually
+    // looks like an HTML document. JSON/API/error responses keep their original type.
+    if (request.method !== "HEAD" && wantsHtml && (contentType.startsWith("text/plain") || !contentType)) {
+      const text = await response.text();
+      if (looksLikeHtml(text)) {
+        headers.set("content-type", "text/html; charset=utf-8");
+      }
+      return new Response(text, {
+        status: response.status,
+        statusText: response.statusText,
+        headers,
+      });
+    }
+
     return new Response(response.body, {
       status: response.status,
       statusText: response.statusText,
