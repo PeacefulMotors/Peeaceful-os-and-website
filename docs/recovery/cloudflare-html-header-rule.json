@@ -14,5 +14,5 @@
   },
   "description": "Peaceful application HTML headers; preserve API response types",
   "enabled": true,
-  "expression": "(http.host in {\"inspect.peacefulmotors.com\" \"owner.peacefulmotors.com\" \"tech.peacefulmotors.com\" \"customer.peacefulmotors.com\" \"schedule.peacefulmotors.com\" \"contacts.peacefulmotors.com\" \"customers.peacefulmotors.com\"} and http.request.uri.path eq \"/\" and http.request.method in {\"GET\" \"HEAD\"} and not http.request.uri.query contains \"api=\")"
+  "expression": "(http.host in {\"inspect.peacefulmotors.com\" \"owner.peacefulmotors.com\" \"tech.peacefulmotors.com\" \"customer.peacefulmotors.com\" \"schedule.peacefulmotors.com\" \"academy.peacefulmotors.com\" \"contacts.peacefulmotors.com\" \"customers.peacefulmotors.com\"} and http.request.uri.path eq \"/\" and http.request.method in {\"GET\" \"HEAD\"} and not http.request.uri.query contains \"api=\")"
 }

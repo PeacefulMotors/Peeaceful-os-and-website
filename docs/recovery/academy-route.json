@@ -1,0 +1,6 @@
+{
+  "id": "99e5180a565a4fc4b970a7fabf855692",
+  "pattern": "academy.peacefulmotors.com/*",
+  "script": "peaceful-os-app-router",
+  "previousScript": "peaceful-motors-free-commercial"
+}
