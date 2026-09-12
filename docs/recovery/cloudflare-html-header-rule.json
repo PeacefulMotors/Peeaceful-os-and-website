@@ -1,0 +1,18 @@
+{
+  "action": "rewrite",
+  "action_parameters": {
+    "headers": {
+      "Content-Security-Policy": {
+        "operation": "set",
+        "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' https://xsqjskbcmsjzkumbsrti.supabase.co https://vpic.nhtsa.dot.gov; worker-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+      },
+      "Content-Type": {
+        "operation": "set",
+        "value": "text/html; charset=utf-8"
+      }
+    }
+  },
+  "description": "Peaceful application HTML headers; preserve API response types",
+  "enabled": true,
+  "expression": "(http.host in {\"inspect.peacefulmotors.com\" \"owner.peacefulmotors.com\" \"tech.peacefulmotors.com\" \"customer.peacefulmotors.com\" \"schedule.peacefulmotors.com\" \"contacts.peacefulmotors.com\" \"customers.peacefulmotors.com\"} and http.request.uri.path eq \"/\" and http.request.method in {\"GET\" \"HEAD\"} and not http.request.uri.query contains \"api=\")"
+}
