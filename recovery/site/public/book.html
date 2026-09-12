@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#6c030d">
+  <meta name="description" content="Request Peaceful Motors mobile repair, diagnostics, inspections, diesel, fleet, small-engine, or consulting service in Greater St. Louis.">
+  <link rel="canonical" href="https://peacefulmotors.com/book"><link rel="icon" href="/assets/peaceful-motors-logo.webp" type="image/webp"><link rel="stylesheet" href="/styles.css">
+  <title>Book Service | Peaceful Motors</title>
+</head>
+<body class="subpage">
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header"><a class="brand" href="/" aria-label="Peaceful Motors home"><span class="brand-crop"><img src="/assets/peaceful-motors-logo.webp" alt="Peaceful Motors"></span></a><nav aria-label="Primary"><a href="/services">Services</a><a href="/prices">Prices</a><a href="/explore">Explore</a><a href="/policies">Policies</a><a class="nav-book" href="/book" aria-current="page">Book</a></nav><div class="header-actions"><button class="theme-button" id="themeToggle" aria-label="Theme: system" title="Change theme"><span aria-hidden="true">◐</span><b>Theme</b></button></div></header>
+  <main id="main">
+    <section class="document-hero"><div><p class="breadcrumb"><a href="/">Peaceful Motors</a> / Book</p><p class="eyebrow">Mobile service • Greater St. Louis</p><h1>Book Peaceful<br>Motors.</h1><p class="lede">Choose the service, see a starter range, save the booking, then use the returned booking reference when paying the non-refundable hold through Stripe.</p><div class="actions"><a class="button book-primary" href="#bookingForm">Book</a><a class="button secondary" href="tel:+13149197456">Call 314-919-7456</a></div><div class="document-meta compact-meta"><span>Frederick M.</span><span>$50 non-refundable booking hold, credited to the job</span><span>No repair begins without written approval</span></div></div></section>
+    <section class="standalone-book">
+      <div class="booking">
+        <div><p class="eyebrow">Online booking</p><h2>One booking. The right service lane.</h2><p>Your request goes to Peaceful Motors for review. We verify the Stripe hold, then confirm the final date, scope, and arrival window.</p><ol class="booking-intro-list"><li>Choose the service, repair area, and parts plan.</li><li>Tap Book to save the booking and receive your booking reference.</li><li>Open Stripe only after the reference appears, and enter that same reference in Stripe.</li></ol><div class="booking-hold compact-disclosure"><b>$50 non-refundable booking hold</b><br>Credited in full to the related job. Card information stays with Stripe and is never entered into this form.</div><div class="booking-safe compact-disclosure"><b>Call note:</b> Call 314-919-7456. If there is no answer, leave a voicemail or text the vehicle, concern, ZIP, and photos if helpful. We may be under the hood.</div><div class="booking-safe compact-disclosure"><b>Privacy:</b> Do not include Social Security numbers, passwords, medical information, card numbers, or account secrets.</div></div>
+        <form id="bookingForm">
+          <label class="hp-field" aria-hidden="true">Company<input name="company" tabindex="-1" autocomplete="off"></label>
+          <input type="hidden" name="vehicle">
+          <input type="hidden" name="starter_estimate" id="starterEstimateInput">
+          <label>Full name<input name="name" autocomplete="name" maxlength="80" required></label>
+          <label>Mobile phone<input name="phone" autocomplete="tel" inputmode="tel" maxlength="25" required></label>
+          <label>Email (optional)<input name="email" type="email" autocomplete="email" maxlength="120"></label>
+          <label>Service needed<select name="service"><option value="">Choose one</option><option>Diagnostics</option><option>Mobile repair</option><option>Inspection</option><option>Diesel or commercial</option><option>Fleet service</option><option>Small engine</option><option>Estimate or claim documentation</option><option>Repair or shop consulting</option><option>Warranty claim</option></select></label>
+          <label>Specific service<select name="repair_area" id="repairArea"><option value="">Choose service first</option></select></label>
+          <label>Parts plan<select name="parts_provider"><option value="">Choose one</option><option>Peaceful Motors provides parts</option><option>Customer has parts</option><option>Not sure yet</option></select></label>
+          <label>Year<input name="year" inputmode="numeric" maxlength="4"></label>
+          <label>Make<input name="make" maxlength="40"></label>
+          <label>Model / equipment<input name="model" maxlength="50"></label>
+          <label>Mileage / hours<input name="mileage" inputmode="numeric" maxlength="12"></label>
+          <div class="wide vin-decode-row"><label>VIN or serial (optional)<input name="vin" maxlength="32" autocapitalize="characters" autocomplete="off"></label><button class="button secondary vin-decode-button" type="button" id="decodeVinButton">Decode VIN</button><span id="vinDecodeStatus" class="vin-decode-status" aria-live="polite"></span></div>
+          <label>Appointment date<input name="date" type="date" required></label>
+          <label>Available window<select name="time" required disabled><option value="">Choose a date first</option></select></label>
+          <label>Reply by<select name="pref"><option value="text">Text</option><option value="email">Email</option></select></label>
+          <label>Service ZIP<input name="zip" autocomplete="postal-code" inputmode="numeric" maxlength="10" required></label>
+          <label class="wide">Service location (optional)<input name="address" autocomplete="street-address" maxlength="150" placeholder="Street or cross streets; you may confirm privately later"></label>
+          <div class="starter-estimate wide" id="starterEstimate" aria-live="polite"><b>Starter range</b><span>Choose a service and specific repair area to see the intake estimate.</span><small>Ranges are for booking and planning only. The final written estimate is sent after diagnosis or inspection.</small></div>
+          <label class="wide">Concern and useful details<textarea name="issue" maxlength="1000" rows="6" placeholder="What is it doing? Warning lights? When did it start? Brake noise, rotors, no-start, leak, check-engine light, photos available, or safe work area notes?" required></textarea></label>
+          <div class="booking-reference wide" id="bookingReference" hidden></div>
+          <a class="button wide booking-hold-action" id="bookingHoldLink" href="https://book.stripe.com/00wfZhgBDcfb8oa7AQbo40p" target="_blank" rel="noopener" hidden>Pay the $50 non-refundable booking hold with Stripe</a>
+          <label class="wide consent"><input name="terms" type="checkbox" required><span>I agree to the <a href="/terms" target="_blank" rel="noopener">Terms</a> and <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a>. Booking does not authorize repairs.</span></label>
+          <button class="button wide book-primary" type="submit">Book</button>
+          <div class="booking-result wide" id="bookingResult" role="status" aria-live="polite"></div>
+          <a class="button secondary wide booking-fallback" id="bookingFallback" hidden href="sms:+13149197456">Text Peaceful Motors instead</a>
+        </form>
+      </div>
+    </section>
+    <section class="contact"><div><p class="eyebrow">Need immediate help?</p><h2>Call or text the concern.</h2><p>Include the year, make, model, symptoms, ZIP, and whether you already have parts. If we do not answer, please leave a voicemail because we may be under the hood.</p></div><div class="contact-actions"><a class="button light" href="tel:+13149197456">Call 314-919-7456</a><a class="button ghost" href="sms:+13149197456?&body=Hello%20Peaceful%20Motors.%20Vehicle%3A%20____.%20Concern%3A%20____.%20ZIP%3A%20____.%20Parts%3A%20____.">Text Peaceful Motors</a></div></section>
+  </main>
+  <footer><a class="footer-brand" href="/"><span class="brand-crop"><img src="/assets/peaceful-motors-logo.webp" alt="Peaceful Motors"></span></a><p>Frederick M. · Owner, Peaceful Motors</p><p><a href="tel:+13149197456">314-919-7456</a> · <a href="mailto:frederickM@peacefulmotors.com">frederickM@peacefulmotors.com</a></p><div class="legal-footer-links"><a href="/services">Services</a><a href="/prices">Prices</a><a href="/explore">Explore</a><a href="/policies">Policies</a><a href="/book">Book</a></div><p class="fine">© <span id="year"></span> Peaceful Motors. An Ease of Mind is Simply Divine.</p></footer>
+  <script src="/app.js" defer></script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a39b322ea9bc0012',t:'MTc4OTE3NzE0MQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
