@@ -70,9 +70,9 @@ let bookingAvailability = { taken: [], hours: null };
 const bookingServices = {
   Diagnostics: [
     ['Check-engine light or warning light', '$165-$295 diagnostic intake'],
-    ['No-start, battery, starter, or charging', '$95-$295 starter range'],
+    ['No-start, battery, starter, or charging', '$165-$295 diagnostic intake'],
     ['Electrical, drivability, or intermittent concern', '$295-$495 advanced diagnostic range'],
-    ['Leak, noise, or vibration check', '$125-$245 inspection range'],
+    ['Leak, noise, or vibration check', '$165-$295 diagnostic intake'],
   ],
   'Mobile repair': [
     ['Brakes, pads, rotors, or brake noise', '$180-$320 labor per axle plus parts'],
@@ -110,8 +110,18 @@ const bookingServices = {
     ['Repair plan review', '$125-$250'],
     ['Shop process or estimate review', '$125-$250'],
   ],
+  'Dash cam install': [
+    ['Daily Driver front turnkey package', '$335 current package'],
+    ['Value front + rear 4K turnkey package', '$515 current package'],
+    ['Front + Rear Shield turnkey package', '$615 current package'],
+    ['Rideshare 3-channel turnkey package', '$805 current package'],
+    ['Flagship 3-channel turnkey package', '$845 current package'],
+    ['Customer-supplied front hardwire install', '$129 labor'],
+    ['Customer-supplied front + rear hardwire install', '$199 labor'],
+    ['Customer-supplied 3-channel hardwire install', '$249 labor'],
+  ],
   'Warranty claim': [
-    ['Warranty concern review', '$95-$195'],
+    ['Warranty concern review', '$165-$295 diagnostic intake'],
     ['Documentation and diagnosis support', '$165-$295'],
   ],
 };
@@ -169,6 +179,7 @@ if (bookingForm && requestedService) {
     fleet: 'Fleet service',
     'small-engine': 'Small engine',
     consulting: 'Repair or shop consulting',
+    dashcam: 'Dash cam install',
   };
   const wanted = serviceAliases[requestedService] || requestedService;
   if (serviceSelect && [...serviceSelect.options].some((option) => option.value === wanted)) serviceSelect.value = wanted;
