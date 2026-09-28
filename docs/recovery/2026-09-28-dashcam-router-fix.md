@@ -37,3 +37,27 @@ Re-run the full acceptance pass from the canonical closeout prompt (Notion: "Das
 
 ## Rollback
 Current live version has no dashcam route at all (confirmed 404 above) — that is the rollback target if the new deploy causes any regression on the five existing routes.
+
+
+## OWNER UPDATE — 28 September 2026 — Dash Kit customer route
+
+Owner wants the customer-facing service visible from the Peaceful Motors homepage as **Dash Cam Kits** and reachable at `https://peacefulmotors.com/dashkit`.
+
+Preserve the already-working `/dashcam` route as a backward-compatible alias. Do not create a new subdomain, CNAME, Worker, site, Stripe product, or booking system.
+
+Required Worker aliases to the same existing asset:
+
+```diff
++ ["/dashkit", "/dashcam.html"],
++ ["/dashkit/", "/dashcam.html"],
++ ["/dashkit.html", "/dashcam.html"]
+```
+
+The page canonical URL is now `https://peacefulmotors.com/dashkit`. The homepage source now includes a **Dash Cam Kits** card linking to `/dashkit`. The page's inline CSS and inline color styles were removed and moved into the existing `/styles.css` so the current CSP (`style-src 'self'`) can render the intended design without weakening security.
+
+Source commits:
+- dash kit page copy/canonical/CSP cleanup: `ec47a9917bf03422f1ed48d131f745df77ee5031`
+- external dash kit styles: `cc661a48d7505318cd5c3cd10fc3625d077dcac5`
+- homepage Dash Cam Kits visibility: `f0d071f913f87e57a361ea54d0f083f866c1666c`
+
+Deployment is not complete until the existing `peaceful-motors-free-commercial` Worker asset bundle is redeployed with the updated `index.html`, `dashcam.html`, and `styles.css`, and the three `/dashkit` aliases are added to PAGE_ASSETS. Verify `/dashkit`, `/dashcam`, homepage, all 8 Stripe links, mobile styling, and existing regression routes before marking LIVE/VERIFIED.
