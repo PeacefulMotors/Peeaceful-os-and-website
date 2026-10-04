@@ -61,7 +61,10 @@ var PAGE_ASSETS = /* @__PURE__ */ new Map([
   ["/consulting", "/consulting-agreement.html"],
   ["/dashcam", "/dashcam.html"],
   ["/dashcam/", "/dashcam.html"],
-  ["/dashcam.html", "/dashcam.html"]
+  ["/dashcam.html", "/dashcam.html"],
+  ["/dashkit", "/dashcam.html"],
+  ["/dashkit/", "/dashcam.html"],
+  ["/dashkit.html", "/dashcam.html"]
 ]);
 var SECURITY_HEADERS = {
   "Permissions-Policy": "camera=(), geolocation=(), microphone=()",
