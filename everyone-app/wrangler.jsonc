@@ -1,17 +1,48 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
   "name": "peaceful-os-app-router",
   "main": "./worker.js",
+  "workers_dev": false,
+  "preview_urls": false,
   "compatibility_date": "2026-08-28",
   "routes": [
-    { "pattern": "inspect.peacefulmotors.com", "custom_domain": true },
-    { "pattern": "owner.peacefulmotors.com", "custom_domain": true },
-    { "pattern": "tech.peacefulmotors.com", "custom_domain": true },
-    { "pattern": "customer.peacefulmotors.com", "custom_domain": true },
-    { "pattern": "booking.peacefulmotors.com", "custom_domain": true },
-    { "pattern": "schedule.peacefulmotors.com", "custom_domain": true },
-    { "pattern": "customers.peacefulmotors.com", "custom_domain": true },
-    { "pattern": "contacts.peacefulmotors.com", "custom_domain": true },
-    { "pattern": "academy.peacefulmotors.com", "custom_domain": true }
+    {
+      "pattern": "academy.peacefulmotors.com/*",
+      "zone_name": "peacefulmotors.com"
+    },
+    {
+      "pattern": "inspect.peacefulmotors.com",
+      "zone_name": "peacefulmotors.com",
+      "custom_domain": true,
+      "enabled": true,
+      "previews_enabled": false
+    },
+    {
+      "pattern": "owner.peacefulmotors.com",
+      "zone_name": "peacefulmotors.com",
+      "custom_domain": true,
+      "enabled": true,
+      "previews_enabled": false
+    },
+    {
+      "pattern": "tech.peacefulmotors.com",
+      "zone_name": "peacefulmotors.com",
+      "custom_domain": true,
+      "enabled": true,
+      "previews_enabled": false
+    },
+    {
+      "pattern": "customer.peacefulmotors.com",
+      "zone_name": "peacefulmotors.com",
+      "custom_domain": true,
+      "enabled": true,
+      "previews_enabled": false
+    },
+    {
+      "pattern": "schedule.peacefulmotors.com",
+      "zone_name": "peacefulmotors.com",
+      "custom_domain": true,
+      "enabled": true,
+      "previews_enabled": false
+    }
   ]
 }
