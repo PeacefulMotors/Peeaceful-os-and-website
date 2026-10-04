@@ -278,7 +278,7 @@ async function loadBookingAvailability() {
   if (!bookingForm) return;
   const dateInput = bookingForm.elements.date;
   const now = new Date();
-  const max = new Date(now.getTime() + 200 * 86400000);
+  const max = new Date(now.getTime() + 90 * 86400000);
   dateInput.min = localIsoDate(now);
   dateInput.max = localIsoDate(max);
   dateInput.addEventListener('change', updateBookingWindows);
@@ -334,6 +334,10 @@ bookingForm?.addEventListener('submit', async (event) => {
     data.issue = `${context}${context && data.issue ? '. ' : ''}${data.issue || ''}`;
   }
   data.terms = data.terms ? 'accepted' : 'declined';
+  data.first_name = String(data.first_name || '').trim();
+  data.last_name = String(data.last_name || '').trim();
+  data.name = `${data.first_name} ${data.last_name}`.trim();
+  data.booking_hold_ack = data.booking_hold_ack ? 'true' : 'false';
   bookingResult.classList.remove('error');
   bookingResult.textContent = 'Saving your booking securely...';
   if (bookingReference) {
