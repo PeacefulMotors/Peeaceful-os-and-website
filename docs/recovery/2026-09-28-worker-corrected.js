@@ -8,12 +8,14 @@ var PRIMARY_APP_HOST = "app.peacefulmotors.com";
 var BOOKING_PRODUCT_HOST = "booking.peacefulmotors.com";
 var ACADEMY_HOST = "academy.peacefulmotors.com";
 var SUPABASE_BOOKING_URL = "https://xsqjskbcmsjzkumbsrti.supabase.co/functions/v1/book";
+var SUPABASE_BOOKING_STATUS_URL = "https://xsqjskbcmsjzkumbsrti.supabase.co/functions/v1/booking-page";
 var APP_HOSTS = /* @__PURE__ */ new Set([PRIMARY_APP_HOST, "os.peacefulmotors.com", "app.peacefulmotors.com"]);
 var SPECIAL_HOST_PAGES = /* @__PURE__ */ new Map([
   [BOOKING_PRODUCT_HOST, "/booking-app.html"],
   [ACADEMY_HOST, "/academy.html"]
 ]);
 var bookingHits = /* @__PURE__ */ new Map();
+var statusHits = /* @__PURE__ */ new Map();
 var PAGE_ASSETS = /* @__PURE__ */ new Map([
   ["/", "/index.html"],
   ["/index.html", "/index.html"],
@@ -52,6 +54,8 @@ var PAGE_ASSETS = /* @__PURE__ */ new Map([
   ["/book/", "/book.html"],
   ["/book.html", "/book.html"],
   ["/booking", "/book.html"],
+  ["/booking/confirmed", "/booking-confirmed.html"],
+  ["/booking/confirmed/", "/booking-confirmed.html"],
   ["/contact", "/contact.html"],
   ["/contact/", "/contact.html"],
   ["/contact.html", "/contact.html"],
@@ -133,8 +137,14 @@ async function handlePublicBooking(request) {
     incoming.make,
     incoming.model
   ].map((value) => String(value || "").trim()).filter(Boolean).join(" ").slice(0, 80);
+  const firstName = String(incoming.first_name || "").trim().slice(0, 80);
+  const lastName = String(incoming.last_name || "").trim().slice(0, 80);
+  const rawVin = String(incoming.vin || "").trim().slice(0, 32);
+  const cleanedVin = rawVin.toUpperCase().replace(/[^A-HJ-NPR-Z0-9]/g, "");
   const clean = {
-    name: String(incoming.name || "").trim().slice(0, 80),
+    first_name: firstName,
+    last_name: lastName,
+    name: [firstName, lastName].filter(Boolean).join(" ").slice(0, 160),
     phone: String(incoming.phone || "").trim().slice(0, 25),
     email: String(incoming.email || "").trim().slice(0, 120),
     vehicle: String(incoming.vehicle || vehicleFromParts || "").trim().slice(0, 80),
@@ -149,11 +159,17 @@ async function handlePublicBooking(request) {
     starter_estimate: String(incoming.starter_estimate || "").trim().slice(0, 120),
     address: String(incoming.address || "").trim().slice(0, 150),
     zip: String(incoming.zip || "").trim().slice(0, 10),
-    vin: String(incoming.vin || "").trim().slice(0, 17),
+    vin: cleanedVin.length === 17 ? cleanedVin : "",
+    vin_note: rawVin && cleanedVin.length !== 17 ? rawVin : "",
+    booking_hold_ack: incoming.booking_hold_ack === true || incoming.booking_hold_ack === "true",
     company: String(incoming.company || "").trim().slice(0, 50)
   };
-  if (!clean.name || !clean.phone || !clean.issue || !clean.date || !clean.time || clean.terms !== "accepted") return jsonResponse({ error: "Name, phone, concern, date, appointment window, and the terms are required." }, 400);
+  if (!clean.first_name || !clean.last_name || !clean.phone || !clean.issue || !clean.date || !clean.time || clean.terms !== "accepted") return jsonResponse({ error: "First name, last name, phone, concern, date, appointment window, and the terms are required." }, 400);
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clean.email)) return jsonResponse({ error: "A valid email is required." }, 400);
+  if (clean.booking_hold_ack !== true) return jsonResponse({ error: "Please confirm the $50 booking hold acknowledgement." }, 400);
   const canonical = {
+    first_name: clean.first_name,
+    last_name: clean.last_name,
     name: clean.name,
     phone: clean.phone,
     email: clean.email,
@@ -165,11 +181,13 @@ async function handlePublicBooking(request) {
       clean.repair_area ? `Specific request: ${clean.repair_area}` : "",
       clean.parts_provider ? `Parts plan: ${clean.parts_provider}` : "",
       clean.starter_estimate ? `Starter range shown: ${clean.starter_estimate}` : "",
+      clean.vin_note ? `VIN/serial provided: ${clean.vin_note}` : "",
       clean.issue,
       clean.pref ? `Preferred reply: ${clean.pref}` : ""
     ].filter(Boolean).join("\n"),
     booking_date: clean.date,
     booking_window: clean.time,
+    booking_hold_ack: true,
     paid_claimed: false,
     company: clean.company
   };
@@ -187,6 +205,44 @@ async function handlePublicBooking(request) {
   return new Response(body, { status: upstream.status, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" } });
 }
 __name(handlePublicBooking, "handlePublicBooking");
+function statusRateLimited(request) {
+  const key = request.headers.get("cf-connecting-ip") || "unknown";
+  const now = Date.now();
+  const recent = (statusHits.get(key) || []).filter((time) => now - time < 6e4);
+  recent.push(now);
+  statusHits.set(key, recent);
+  if (statusHits.size > 5e3) statusHits.clear();
+  return recent.length > 20;
+}
+__name(statusRateLimited, "statusRateLimited");
+async function handleBookingStatus(url, request) {
+  if (statusRateLimited(request)) return jsonResponse({ ok: false, error: "rate_limited" }, 429);
+  const ref = String(url.searchParams.get("ref") || "").trim().toUpperCase();
+  const session = String(url.searchParams.get("session_id") || "").trim();
+  const query = new URLSearchParams({ status: "1" });
+  if (/^[0-9A-F]{8}$/.test(ref)) query.set("ref", ref);
+  else if (/^cs_(live|test)_[A-Za-z0-9]{10,200}$/.test(session)) query.set("session_id", session);
+  else return jsonResponse({ ok: false, error: "invalid_reference" }, 400);
+  try {
+    const upstream = await fetch(`${SUPABASE_BOOKING_STATUS_URL}?${query}`, { headers: { Accept: "application/json" } });
+    const data = await upstream.json().catch(() => null);
+    if (!upstream.ok || !data || data.ok !== true) return jsonResponse({ ok: false, error: "status_unavailable" }, 503);
+    if (!data.found) return jsonResponse({ ok: true, found: false });
+    return jsonResponse({
+      ok: true,
+      found: true,
+      ref: /^[0-9A-F]{8}$/.test(String(data.ref || "")) ? data.ref : null,
+      hold_verified: data.hold_verified === true,
+      amount: data.hold_verified === true && typeof data.amount === "number" ? data.amount : null,
+      booking_date: /^\d{4}-\d{2}-\d{2}$/.test(String(data.booking_date || "")) ? data.booking_date : null,
+      booking_window: typeof data.booking_window === "string" ? data.booking_window.slice(0, 60) : null,
+      cancelled: data.cancelled === true
+    });
+  } catch {
+    return jsonResponse({ ok: false, error: "status_unavailable" }, 503);
+  }
+}
+__name(handleBookingStatus, "handleBookingStatus");
 async function handleBookingAvailability() {
   try {
     const upstream = await fetch(SUPABASE_BOOKING_URL, { headers: { Accept: "application/json" } });
@@ -205,6 +261,9 @@ var index_default = {
     }
     if (request.method === "GET" && url.hostname === ROOT_HOST && url.pathname === "/api/book") {
       return withHeaders(await handleBookingAvailability(), { "Cache-Control": "no-store" }, request.method);
+    }
+    if (request.method === "GET" && url.hostname === ROOT_HOST && url.pathname === "/api/booking-status") {
+      return withHeaders(await handleBookingStatus(url, request), { "Cache-Control": "no-store" }, request.method);
     }
     if (!["GET", "HEAD"].includes(request.method)) {
       return new Response("Method Not Allowed", {

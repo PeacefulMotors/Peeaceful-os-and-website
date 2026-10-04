@@ -3,6 +3,7 @@ const CORS={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Methods":"GE
 function json(body:unknown,status=200){return new Response(JSON.stringify(body),{status,headers:{...CORS,"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store"}})}
 const supabase=createClient(Deno.env.get("SUPABASE_URL")!,Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 const SHOP_ID="a0000000-0000-4000-8000-000000000001";
+const HORIZON_DAYS=90;
 const DIVISIONS=new Set(['auto','diesel','exotic_european','small_engine','collision','rv_specialty','inspection']);
 const WARRANTY_FALLBACK="24 months or 24,000 miles, whichever comes first. Peaceful Motors Confidence Warranty.";
 function clip(v:unknown,max:number){if(typeof v!=="string")return null;const s=v.trim();return s?s.slice(0,max):null}
@@ -27,10 +28,17 @@ async function syncCalendar(bookingId:string,phase:string){
     // rejected just because the calendar hold didn't go through.
   }
 }
+async function availableSlots(start:string,end:string){
+ const r=await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/availability?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`);
+ if(!r.ok)throw new Error("Availability unavailable");
+ const d=await r.json();
+ if(d.calendar_status==="unavailable"||!Array.isArray(d.slots))throw new Error("Availability unavailable");
+ return d.slots;
+}
 Deno.serve(async req=>{
  if(req.method==="OPTIONS")return new Response(null,{headers:CORS});
  if(req.method==="GET"){
-  const today=new Date().toISOString().slice(0,10),end=new Date(Date.now()+200*86400000).toISOString().slice(0,10);
+  const today=new Date().toISOString().slice(0,10),end=new Date(Date.now()+HORIZON_DAYS*86400000).toISOString().slice(0,10);
   const [slotsRes,hoursRes,catalogRes,warrantyRes,divisionRes]=await Promise.all([
    supabase.from("bookings").select("booking_date,booking_window").neq("status","cancelled").gte("booking_date",today).lte("booking_date",end),
    supabase.from("app_data").select("value").eq("key","booking_windows").maybeSingle(),
@@ -39,7 +47,9 @@ Deno.serve(async req=>{
    supabase.from("service_divisions").select("key,label,description,sort_order").eq("active",true).order("sort_order")]);
   if(slotsRes.error)return json({error:"availability unavailable"},500);
   let hours=null,catalog=null;try{hours=hoursRes.data?JSON.parse(hoursRes.data.value):null}catch{}try{catalog=catalogRes.data?JSON.parse(catalogRes.data.value):null}catch{}
-  return json({taken:slotsRes.data??[],hours,catalog,divisions:divisionRes.data??[],booking_url:"https://peacefulmotors.com/book",warranty:(warrantyRes.data?.value||WARRANTY_FALLBACK).trim()});
+  let slots;try{slots=await availableSlots(today,end)}catch{return json({error:"Availability could not be verified. Please try again shortly."},503)}
+  const taken=[...(slotsRes.data??[]),...slots.filter((s:any)=>!s.available).map((s:any)=>({booking_date:s.date,booking_window:s.window}))];
+  return json({taken,slots,hours,catalog,divisions:divisionRes.data??[],booking_url:"https://peacefulmotors.com/book",warranty:(warrantyRes.data?.value||WARRANTY_FALLBACK).trim()});
  }
  if(req.method==="POST"){
   let body:Record<string,unknown>;try{body=await req.json()}catch{return json({error:"bad json"},400)}
@@ -61,7 +71,9 @@ Deno.serve(async req=>{
   if(!holdAccepted)return json({error:"booking hold acknowledgement is required"},400);
   if(body.vin&&!vin && division!=='small_engine')return json({error:"VIN must be 17 valid characters"},400);
   if(!/^\d{4}-\d{2}-\d{2}$/.test(bookingDate))return json({error:"bad date"},400);
-  const d=new Date(bookingDate+"T12:00:00Z");if(isNaN(d.getTime())||d.getTime()<Date.now()-86400000)return json({error:"date is in the past"},400);if(d.getTime()>Date.now()+200*86400000)return json({error:"date is too far out, six months maximum"},400);
+  const d=new Date(bookingDate+"T12:00:00Z");if(isNaN(d.getTime())||d.getTime()<Date.now()-86400000)return json({error:"date is in the past"},400);if(d.getTime()>Date.now()+HORIZON_DAYS*86400000)return json({error:"date is too far out, 90 days maximum"},400);
+  let slots;try{slots=await availableSlots(bookingDate,bookingDate)}catch{return json({error:"Availability could not be verified. Please try again shortly."},503)}
+  if(!slots.some((s:any)=>s.date===bookingDate&&s.window===bookingWindow&&s.available===true))return json({error:"slot_taken",message:"That window is not available. Please choose another time."},409);
   const missingVin=division!=='small_engine'&&!vin;
   const notesWithVinFlag=missingVin?`VIN REQUIRED BEFORE DISPATCH / REPAIR ORDER.\n${notes}`:notes;
   const {data,error}=await supabase.from("bookings").insert({shop_id:SHOP_ID,name,phone,email,service_address:address,vehicle,vin:division==='small_engine'?null:vin,service_division:division,service,notes:notesWithVinFlag,booking_date:bookingDate,booking_window:bookingWindow,estimate_ref:clip(body.estimate_ref,60),paid_claimed:false}).select("id,short_ref,name,phone,email,service_address,vehicle,service,notes,booking_date,booking_window,vin,service_division").single();
