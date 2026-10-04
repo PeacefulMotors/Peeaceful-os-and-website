@@ -6,46 +6,141 @@
   <link rel="canonical" href="https://peacefulmotors.com/book"><link rel="icon" href="/assets/peaceful-motors-logo.webp" type="image/webp"><link rel="stylesheet" href="/styles.css">
   <title>Book Service | Peaceful Motors</title>
 </head>
-<body class="subpage">
+<body class="subpage book-page">
   <a class="skip" href="#main">Skip to content</a>
   <header class="site-header"><a class="brand" href="/" aria-label="Peaceful Motors home"><span class="brand-crop"><img src="/assets/peaceful-motors-logo.webp" alt="Peaceful Motors"></span></a><nav aria-label="Primary"><a href="/services">Services</a><a href="/dashkit">Dash Cams</a><a href="/prices">Prices</a><a href="/explore">Explore</a><a href="/policies">Policies</a><a class="nav-book" href="/book" aria-current="page">Book</a></nav><div class="header-actions"><button class="theme-button" id="themeToggle" aria-label="Theme: system" title="Change theme"><span aria-hidden="true">◐</span><b>Theme</b></button></div></header>
   <main id="main">
-    <section class="document-hero"><div><p class="breadcrumb"><a href="/">Peaceful Motors</a> / Book</p><p class="eyebrow">Mobile service • Greater St. Louis</p><h1>Book Peaceful<br>Motors.</h1><p class="lede">Choose the service, see a starter range, save the booking, then use the returned booking reference when paying the non-refundable hold through Stripe.</p><div class="actions"><a class="button book-primary" href="#bookingForm">Book</a><a class="button secondary" href="/dashkit">Dash Cam Kits</a><a class="button secondary" href="tel:+13149197456">Call 314-919-7456</a></div><div class="document-meta compact-meta"><span>Frederick M.</span><span>$50 non-refundable booking hold, credited to the job</span><span>No repair begins without written approval</span></div></div></section>
-    <section class="standalone-book">
-      <div class="booking">
-        <div><p class="eyebrow">Online booking</p><h2>One booking. The right service lane.</h2><p>Your request goes to Peaceful Motors for review. We verify the Stripe hold, then confirm the final date, scope, and arrival window.</p><ol class="booking-intro-list"><li>Choose the service, repair area, and parts plan.</li><li>Tap Book to save the booking and receive your booking reference.</li><li>Open Stripe only after the reference appears, and enter that same reference in Stripe.</li></ol><div class="booking-hold compact-disclosure"><b>$50 non-refundable booking hold</b><br>Credited in full to the related job. Card information stays with Stripe and is never entered into this form.</div><div class="booking-safe compact-disclosure"><b>Call note:</b> Call 314-919-7456. If there is no answer, leave a voicemail or text the vehicle, concern, ZIP, and photos if helpful. We may be under the hood.</div><div class="booking-safe compact-disclosure"><b>Privacy:</b> Do not include Social Security numbers, passwords, medical information, card numbers, or account secrets.</div></div>
-        <form id="bookingForm">
-          <label class="hp-field" aria-hidden="true">Company<input name="company" tabindex="-1" autocomplete="off"></label>
-          <input type="hidden" name="vehicle">
-          <input type="hidden" name="starter_estimate" id="starterEstimateInput">
-          <label>Full name<input name="name" autocomplete="name" maxlength="80" required></label>
-          <label>Mobile phone<input name="phone" autocomplete="tel" inputmode="tel" maxlength="25" required></label>
-          <label>Email (optional)<input name="email" type="email" autocomplete="email" maxlength="120"></label>
-          <label>Service needed<select name="service"><option value="">Choose one</option><option>Diagnostics</option><option>Mobile repair</option><option>Inspection</option><option>Diesel or commercial</option><option>Fleet service</option><option>Small engine</option><option>Estimate or claim documentation</option><option>Repair or shop consulting</option><option>Dash cam install</option><option>Dash Cam Kit — Daily Driver Front ($335)</option><option>Dash Cam Kit — Value Front + Rear ($515)</option><option>Dash Cam Kit — Front + Rear Shield ($615)</option><option>Dash Cam Kit — Rideshare 3-Channel ($805)</option><option>Dash Cam Kit — Flagship 3-Channel ($845)</option><option>Dash Cam Install — Bring Your Own Front ($129)</option><option>Dash Cam Install — Bring Your Own Front + Rear ($199)</option><option>Dash Cam Install — Bring Your Own 3-Channel ($249)</option><option>Warranty claim</option></select></label>
-          <label>Specific service<select name="repair_area" id="repairArea"><option value="">Choose service first</option></select></label>
-          <label>Parts plan<select name="parts_provider"><option value="">Choose one</option><option>Peaceful Motors provides parts</option><option>Customer has parts</option><option>Not sure yet</option></select></label>
-          <label>Year<input name="year" inputmode="numeric" maxlength="4"></label>
-          <label>Make<input name="make" maxlength="40"></label>
-          <label>Model / equipment<input name="model" maxlength="50"></label>
-          <label>Mileage / hours<input name="mileage" inputmode="numeric" maxlength="12"></label>
-          <div class="wide vin-decode-row"><label>VIN or serial (optional)<input name="vin" maxlength="32" autocapitalize="characters" autocomplete="off"></label><button class="button secondary vin-decode-button" type="button" id="decodeVinButton">Decode VIN</button><span id="vinDecodeStatus" class="vin-decode-status" aria-live="polite"></span></div>
-          <label>Appointment date<input name="date" type="date" required></label>
-          <label>Available window<select name="time" required disabled><option value="">Choose a date first</option></select></label>
-          <label>Reply by<select name="pref"><option value="text">Text</option><option value="email">Email</option></select></label>
-          <label>Service ZIP<input name="zip" autocomplete="postal-code" inputmode="numeric" maxlength="10" required></label>
-          <label class="wide">Service location (optional)<input name="address" autocomplete="street-address" maxlength="150" placeholder="Street or cross streets; you may confirm privately later"></label>
-          <div class="starter-estimate wide" id="starterEstimate" aria-live="polite"><b>Starter range</b><span>Choose a service and specific repair area to see the intake estimate.</span><small>Ranges are for booking and planning only. The final written estimate is sent after diagnosis or inspection.</small></div>
-          <label class="wide">Concern and useful details<textarea name="issue" maxlength="1000" rows="6" placeholder="What is it doing? Warning lights? When did it start? Brake noise, rotors, no-start, leak, check-engine light, photos available, or safe work area notes?" required></textarea></label>
-          <div class="booking-reference wide" id="bookingReference" hidden></div>
-          <a class="button wide booking-hold-action" id="bookingHoldLink" href="https://book.stripe.com/00wfZhgBDcfb8oa7AQbo40p" target="_blank" rel="noopener" hidden>Pay the $50 non-refundable booking hold with Stripe</a>
-          <label class="wide consent"><input name="terms" type="checkbox" required><span>I agree to the <a href="/terms" target="_blank" rel="noopener">Terms</a> and <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a>. Booking does not authorize repairs.</span></label>
-          <button class="button wide book-primary" type="submit">Book</button>
-          <div class="booking-result wide" id="bookingResult" role="status" aria-live="polite"></div>
-          <a class="button secondary wide booking-fallback" id="bookingFallback" hidden href="sms:+13149197456">Text Peaceful Motors instead</a>
-        </form>
+    <section class="book-hero">
+      <p class="book-breadcrumb"><a href="/">Peaceful Motors</a> / Book</p>
+      <h1 class="book-title">Book service</h1>
+      <p class="book-lede">Mobile repair, diagnostics, inspections, dash cams, diesel, and small engines in Greater St. Louis. Choose a service, tell us about the vehicle, and pick an open window.</p>
+      <ul class="book-facts">
+        <li>$50 booking hold, credited to the job</li>
+        <li>No repair begins without written approval</li>
+        <li><a href="tel:+13149197456">Call or text 314-919-7456</a></li>
+      </ul>
+    </section>
+    <section class="book-shell">
+      <div class="book-layout">
+        <aside class="book-aside" aria-label="How booking works">
+          <h2 class="book-aside-title">How booking works</h2>
+          <ol class="book-steps-list">
+            <li>Choose the service and an open window.</li>
+            <li>Tap Book to save the booking. Your booking reference appears on screen.</li>
+            <li>Pay the $50 booking hold with Stripe and enter that same reference.</li>
+          </ol>
+          <p class="book-note"><span class="book-note-title">Booking hold.</span> The $50 hold is non-refundable and is credited in full to the related job. Card details are entered only on Stripe, never in this form.</p>
+          <p class="book-note"><span class="book-note-title">Calls.</span> If there is no answer, leave a voicemail or text the vehicle, concern, and ZIP. We may be under the hood.</p>
+          <p class="book-note"><span class="book-note-title">Privacy.</span> Do not include Social Security numbers, passwords, medical information, card numbers, or account secrets.</p>
+        </aside>
+        <div class="book-main">
+          <form id="bookingForm" class="book-form" novalidate>
+            <label class="hp-field" aria-hidden="true">Company<input name="company" tabindex="-1" autocomplete="off"></label>
+            <input type="hidden" name="service" id="bookServiceValue">
+            <input type="hidden" name="starter_estimate" id="starterEstimateInput">
+
+            <fieldset class="book-section">
+              <legend class="book-section-title"><span class="book-section-num">1</span>Service</legend>
+              <div class="book-grid">
+                <div class="book-field">
+                  <label class="book-label" for="bookCategory">Service category</label>
+                  <select class="book-input" id="bookCategory" name="service_category" required aria-describedby="bookCategoryHelp"><option value="">Choose a category</option></select>
+                  <p class="book-help" id="bookCategoryHelp">Not sure? Choose Other, then Not sure what I need.</p>
+                </div>
+                <div class="book-field">
+                  <label class="book-label" for="repairArea">Specific service</label>
+                  <select class="book-input" id="repairArea" name="repair_area" required disabled><option value="">Choose a category first</option></select>
+                </div>
+                <div class="book-field">
+                  <label class="book-label" for="bookParts">Parts plan</label>
+                  <select class="book-input" id="bookParts" name="parts_provider"><option value="">Choose one</option><option>Peaceful Motors provides parts</option><option>Customer has parts</option><option>Not sure yet</option></select>
+                </div>
+              </div>
+              <div class="book-estimate" id="starterEstimate" aria-live="polite">
+                <p class="book-estimate-label">Starter range</p>
+                <p class="book-estimate-value" id="starterEstimateValue">Choose a service to see the starter range.</p>
+                <p class="book-help">Ranges are for booking and planning only. The final written estimate is sent after diagnosis or inspection.</p>
+              </div>
+            </fieldset>
+
+            <fieldset class="book-section">
+              <legend class="book-section-title"><span class="book-section-num">2</span>Vehicle or equipment</legend>
+              <div class="book-grid">
+                <div class="book-field"><label class="book-label" for="bookYear">Year</label><input class="book-input" id="bookYear" name="year" inputmode="numeric" maxlength="4" autocomplete="off"></div>
+                <div class="book-field"><label class="book-label" for="bookMake">Make</label><input class="book-input" id="bookMake" name="make" maxlength="40" required></div>
+                <div class="book-field"><label class="book-label" for="bookModel">Model or equipment</label><input class="book-input" id="bookModel" name="model" maxlength="50" required></div>
+                <div class="book-field"><label class="book-label" for="bookMileage">Mileage or hours</label><input class="book-input" id="bookMileage" name="mileage" inputmode="numeric" maxlength="12"></div>
+                <div class="book-field book-span"><label class="book-label" for="bookVin">VIN or serial (optional)</label><input class="book-input" id="bookVin" name="vin" maxlength="32" autocapitalize="characters" autocomplete="off" aria-describedby="bookVinHelp"><p class="book-help" id="bookVinHelp">A 17-character VIN helps us confirm parts. If you skip it, we will ask for it before the visit.</p></div>
+              </div>
+            </fieldset>
+
+            <fieldset class="book-section">
+              <legend class="book-section-title"><span class="book-section-num">3</span>Concern</legend>
+              <div class="book-field">
+                <label class="book-label" for="bookIssue">What is it doing?</label>
+                <textarea class="book-input book-textarea" id="bookIssue" name="issue" maxlength="1000" rows="5" required aria-describedby="bookIssueHelp"></textarea>
+                <p class="book-help" id="bookIssueHelp">Warning lights, noises, leaks, when it started, recent work, and anything about the work area.</p>
+              </div>
+            </fieldset>
+
+            <fieldset class="book-section">
+              <legend class="book-section-title"><span class="book-section-num">4</span>Date and time</legend>
+              <div class="book-grid">
+                <div class="book-field">
+                  <label class="book-label" for="bookDay">Day</label>
+                  <select class="book-input" id="bookDay" name="date" required disabled><option value="">Loading open days...</option></select>
+                </div>
+                <div class="book-field">
+                  <label class="book-label" for="bookWindow">Arrival window</label>
+                  <select class="book-input" id="bookWindow" name="time" required disabled><option value="">Choose a day first</option></select>
+                </div>
+              </div>
+              <p class="book-help" id="bookAvailStatus" role="status" aria-live="polite">Only open days and windows are listed. Times are Central.</p>
+            </fieldset>
+
+            <fieldset class="book-section">
+              <legend class="book-section-title"><span class="book-section-num">5</span>Contact and location</legend>
+              <div class="book-grid">
+                <div class="book-field"><label class="book-label" for="bookFirst">First name</label><input class="book-input" id="bookFirst" name="first_name" autocomplete="given-name" maxlength="40" required></div>
+                <div class="book-field"><label class="book-label" for="bookLast">Last name</label><input class="book-input" id="bookLast" name="last_name" autocomplete="family-name" maxlength="40" required></div>
+                <div class="book-field"><label class="book-label" for="bookPhone">Mobile phone</label><input class="book-input" id="bookPhone" name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="25" required></div>
+                <div class="book-field"><label class="book-label" for="bookEmail">Email</label><input class="book-input" id="bookEmail" name="email" type="email" autocomplete="email" maxlength="120" required></div>
+                <div class="book-field"><label class="book-label" for="bookPref">Reply by</label><select class="book-input" id="bookPref" name="pref"><option value="text">Text</option><option value="email">Email</option></select></div>
+                <div class="book-field"><label class="book-label" for="bookZip">Service ZIP</label><input class="book-input" id="bookZip" name="zip" autocomplete="postal-code" inputmode="numeric" maxlength="10" required></div>
+                <div class="book-field book-span"><label class="book-label" for="bookAddress">Service location (optional)</label><input class="book-input" id="bookAddress" name="address" autocomplete="street-address" maxlength="150" aria-describedby="bookAddressHelp"><p class="book-help" id="bookAddressHelp">Street or cross streets. You can confirm the exact spot privately later.</p></div>
+              </div>
+            </fieldset>
+
+            <fieldset class="book-section">
+              <legend class="book-section-title"><span class="book-section-num">6</span>Policies</legend>
+              <label class="book-check"><input name="booking_hold_ack" type="checkbox" required><span>I understand the $50 booking hold is non-refundable and is credited to the related job.</span></label>
+              <label class="book-check"><input name="terms" type="checkbox" required><span>I agree to the <a href="/terms" target="_blank" rel="noopener">Terms</a> and <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a>. Booking does not authorize repairs.</span></label>
+            </fieldset>
+
+            <div class="book-submit-row">
+              <button class="button book-submit" type="submit" id="bookSubmit">Book</button>
+              <p class="book-result" id="bookingResult" role="status" aria-live="polite"></p>
+              <a class="button secondary book-fallback" id="bookingFallback" hidden href="sms:+13149197456">Text Peaceful Motors instead</a>
+            </div>
+          </form>
+
+          <section class="book-success" id="bookingSuccess" hidden tabindex="-1" aria-labelledby="bookingSuccessTitle">
+            <h2 class="book-success-title" id="bookingSuccessTitle">Booking saved</h2>
+            <p class="book-success-label">Your booking reference</p>
+            <p class="book-ref" id="bookingRefValue"></p>
+            <p class="book-success-note">Keep this number for your records.</p>
+            <p class="book-success-meta" id="bookingSuccessMeta" hidden></p>
+            <div class="book-success-actions">
+              <button class="button secondary" type="button" id="copyRefButton">Copy reference</button>
+              <a class="button" id="bookingHoldLink" href="https://book.stripe.com/00wfZhgBDcfb8oa7AQbo40p" target="_blank" rel="noopener">Pay $50 booking hold</a>
+            </div>
+            <p class="book-help" id="copyRefStatus" role="status" aria-live="polite"></p>
+            <p class="book-help">When Stripe asks for the booking reference, enter the number above exactly. Your booking is confirmed after Stripe verifies the hold.</p>
+          </section>
+        </div>
       </div>
     </section>
-    <section class="contact"><div><p class="eyebrow">Need immediate help?</p><h2>Call or text the concern.</h2><p>Include the year, make, model, symptoms, ZIP, and whether you already have parts. If we do not answer, please leave a voicemail because we may be under the hood.</p></div><div class="contact-actions"><a class="button light" href="tel:+13149197456">Call 314-919-7456</a><a class="button ghost" href="sms:+13149197456?&body=Hello%20Peaceful%20Motors.%20Vehicle%3A%20____.%20Concern%3A%20____.%20ZIP%3A%20____.%20Parts%3A%20____.">Text Peaceful Motors</a></div></section>
+    <section class="contact"><div><p class="eyebrow">Need immediate help?</p><h2>Call or text the concern.</h2><p>Include the year, make, model, symptoms, ZIP, and whether you already have parts. If we do not answer, please leave a voicemail because we may be under the hood.</p></div><div class="contact-actions"><a class="button light" href="tel:+13149197456">Call 314-919-7456</a><a class="button ghost" href="sms:+13149197456?&amp;body=Hello%20Peaceful%20Motors.%20Vehicle%3A%20____.%20Concern%3A%20____.%20ZIP%3A%20____.%20Parts%3A%20____.">Text Peaceful Motors</a></div></section>
   </main>
   <footer><a class="footer-brand" href="/"><span class="brand-crop"><img src="/assets/peaceful-motors-logo.webp" alt="Peaceful Motors"></span></a><p>Frederick M. · Owner, Peaceful Motors</p><p><a href="tel:+13149197456">314-919-7456</a> · <a href="mailto:frederickM@peacefulmotors.com">frederickM@peacefulmotors.com</a></p><div class="legal-footer-links"><a href="/dashkit">Dash Cam Installation</a><a href="/services">Services</a><a href="/prices">Prices</a><a href="/explore">Explore</a><a href="/policies">Policies</a><a href="/book">Book</a></div><p class="fine">© <span id="year"></span> Peaceful Motors. An Ease of Mind is Simply Divine.</p></footer>
   <script src="/app.js" defer></script></body>
