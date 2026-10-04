@@ -88,3 +88,82 @@ footer{padding:2.5rem clamp(1rem,8vw,8rem);text-align:center;background:var(--ca
 .dash-note{background:var(--card);border-left:5px solid var(--green);padding:1.1rem;margin-top:1.4rem}.dash-process{background:var(--deep);color:#fff}.dash-process-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:3rem}.dash-steps{display:grid}.dash-step{display:grid;grid-template-columns:44px 1fr;gap:.8rem;padding:1rem;border-bottom:1px solid #835055}.dash-step>span{width:36px;height:36px;border:1px solid #d8a8ab;border-radius:50%;display:grid;place-items:center;font:bold .8rem Arial,sans-serif}.dash-step small{color:#ead7d9;font:400 .84rem Arial,sans-serif}
 @media(max-width:1000px){.dash-hero,.dash-process-grid{grid-template-columns:1fr}.dash-grid{grid-template-columns:repeat(2,1fr)}.dash-badges{grid-template-columns:repeat(2,1fr)}}@media(max-width:680px){.dash-hero,.dash-section{padding:2.4rem 1rem}.dash-hero{background:var(--paper)}.dash-hero .promise-card{display:none}.dash-grid,.dash-badges{grid-template-columns:1fr}.dash-card{min-height:0}}
 .dash-eyebrow-light{color:#cce2c8}.dash-process-copy{color:#ead7d9}
+/* Booking page v2 (4 Oct 2026). Scoped to .book-page / .book-*; one sans family, fixed weight scale: title 700, section titles 600, labels 500, body 400, help 400 small. */
+.book-page{--book-font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;--book-accent:var(--maroon);--book-gap:1rem;--book-radius:8px}
+:root[data-theme=dark] .book-page{--book-accent:#f2c7cb}
+.book-page main{font-family:var(--book-font);font-weight:400;line-height:1.5}
+.book-page main .contact h2{font-family:var(--book-font);font-weight:600;letter-spacing:-.01em}
+.book-page [hidden]{display:none!important}
+.book-page :focus-visible{outline:3px solid var(--book-accent);outline-offset:2px}
+.book-page main .button{font:600 .95rem/1.2 var(--book-font);letter-spacing:0;border-radius:6px;min-height:48px}
+.book-hero{padding:clamp(2rem,5vw,3.5rem) clamp(1rem,6vw,6rem) clamp(1.5rem,3vw,2rem);background:var(--paper);border-bottom:1px solid var(--line)}
+.book-breadcrumb{font-size:.875rem;color:var(--muted);margin:0 0 .75rem}
+.book-breadcrumb a{color:var(--book-accent)}
+.book-page .book-title{font:700 clamp(2rem,5vw,2.75rem)/1.1 var(--book-font);letter-spacing:-.02em;margin:0 0 .75rem;color:var(--ink)}
+.book-lede{font-size:1.0625rem;color:var(--muted);max-width:44rem;margin:0 0 1rem}
+.book-facts{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:.5rem}
+.book-facts li{font-size:.875rem;font-weight:500;padding:.375rem .75rem;border:1px solid var(--line);border-radius:999px;background:var(--card)}
+.book-facts a{color:var(--book-accent);text-decoration:none}
+.book-shell{padding:clamp(1.5rem,4vw,3rem) clamp(1rem,6vw,6rem);background:var(--soft)}
+.book-layout{display:grid;grid-template-columns:minmax(0,18rem) minmax(0,1fr);gap:clamp(1rem,3vw,2rem);max-width:72rem;margin:0 auto;align-items:start}
+.book-aside{background:var(--card);border:1px solid var(--line);border-radius:var(--book-radius);padding:1.25rem;position:sticky;top:96px}
+.book-aside-title{font:600 1.0625rem/1.3 var(--book-font);margin:0 0 .75rem}
+.book-steps-list{margin:0 0 1rem;padding-left:1.25rem;font-size:.9375rem}
+.book-steps-list li{margin:0 0 .5rem}
+.book-note{font-size:.875rem;color:var(--muted);margin:0 0 .75rem}
+.book-note:last-child{margin-bottom:0}
+.book-note-title{font-weight:600;color:var(--ink)}
+.book-main{min-width:0}
+.book-form{display:grid;gap:var(--book-gap)}
+.book-section{margin:0;padding:1.25rem;border:1px solid var(--line);border-radius:var(--book-radius);background:var(--card);min-width:0}
+.book-section-title{font:600 1.125rem/1.3 var(--book-font);color:var(--ink);padding:0;margin:0 0 1rem;display:flex;align-items:center;gap:.625rem;float:left;width:100%}
+.book-section-title+*{clear:both}
+.book-section-num{display:inline-flex;align-items:center;justify-content:center;width:1.75rem;height:1.75rem;border-radius:50%;background:var(--maroon);color:#fff;font-size:.875rem;font-weight:600;flex:0 0 auto}
+.book-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--book-gap)}
+.book-field{display:grid;gap:.375rem;align-content:start;min-width:0}
+.book-span{grid-column:1/-1}
+.book-label{font:500 .9375rem/1.3 var(--book-font);color:var(--ink)}
+.book-input{width:100%;min-height:48px;padding:.75rem;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink);font:400 1rem/1.4 var(--book-font)}
+.book-input:disabled{opacity:.65;cursor:not-allowed}
+.book-textarea{min-height:8rem;resize:vertical}
+.book-help{font-size:.875rem;line-height:1.45;color:var(--muted);margin:0}
+.book-section>.book-help{margin-top:.75rem}
+.book-error{color:var(--maroon)!important;font-weight:500}
+:root[data-theme=dark] .book-error{color:#f2c7cb!important}
+.book-estimate{margin-top:var(--book-gap);padding:1rem;border:1px solid var(--line);border-left:4px solid var(--maroon);border-radius:6px;background:var(--paper);display:grid;gap:.25rem}
+.book-estimate-label{font-size:.8125rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--book-accent);margin:0}
+.book-estimate-value{font-size:1rem;font-weight:500;margin:0}
+.book-check{display:grid;grid-template-columns:1.25rem minmax(0,1fr);gap:.75rem;align-items:start;font-size:.9375rem;margin:0 0 .75rem;cursor:pointer}
+.book-check:last-child{margin-bottom:0}
+.book-check input{width:1.25rem;height:1.25rem;margin:.125rem 0 0;accent-color:var(--maroon)}
+.book-check a{color:var(--book-accent)}
+.book-submit-row{display:grid;gap:.75rem}
+.book-page .book-submit{width:100%;font-size:1.0625rem}
+.book-page .book-submit:disabled{opacity:.6;cursor:not-allowed}
+.book-result{font-size:.9375rem;margin:0;min-height:1.4em}
+.book-fallback{width:100%}
+.book-success,.book-confirm-card{background:var(--card);border:1px solid var(--line);border-top:4px solid var(--maroon);border-radius:var(--book-radius);padding:clamp(1.25rem,4vw,2rem);display:grid;gap:.75rem}
+.book-success:focus{outline:none}
+.book-success-title{font:700 1.5rem/1.2 var(--book-font);margin:0;color:var(--ink)}
+.book-success-label{font-size:.9375rem;font-weight:500;color:var(--muted);margin:.25rem 0 0}
+.book-ref{display:block;font:600 clamp(1.75rem,8vw,2.5rem)/1.15 ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;letter-spacing:.08em;color:var(--book-accent);background:var(--paper);border:1px dashed var(--line);border-radius:6px;padding:.75rem 1rem;margin:0;user-select:all;-webkit-user-select:all;overflow-wrap:anywhere;word-break:break-all}
+.book-ref-sm{font-size:1.25rem;padding:.375rem .625rem;display:inline-block}
+.book-success-note{font-size:.9375rem;margin:0}
+.book-success-meta{font-size:.9375rem;color:var(--muted);margin:0}
+.book-success-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.75rem;margin-top:.25rem}
+.book-success-actions .button{width:100%}
+.book-confirm-shell{min-height:60vh}
+.book-confirm{max-width:40rem;margin:0 auto;display:grid;gap:1rem}
+.book-confirm-state{font:700 1.375rem/1.25 var(--book-font);margin:0}
+.book-confirm-card[data-state=verified] .book-confirm-state{color:var(--green)}
+.book-confirm-card[data-state=error] .book-confirm-state,.book-confirm-card[data-state=missing] .book-confirm-state{color:var(--book-accent)}
+.book-confirm-detail{font-size:1rem;margin:0}
+.book-confirm-facts{margin:0;display:grid;gap:.75rem}
+.book-confirm-facts>div{display:grid;gap:.25rem}
+.book-confirm-facts dt{font-size:.875rem;font-weight:500;color:var(--muted)}
+.book-confirm-facts dd{margin:0;font-size:1rem;font-weight:500}
+.book-confirm-lookup{background:var(--card);border:1px solid var(--line);border-radius:var(--book-radius);padding:1.25rem;display:grid;gap:.5rem}
+.book-confirm-lookup-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.75rem}
+.book-ref-input{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.08em;text-transform:uppercase}
+@media(max-width:860px){.book-layout{grid-template-columns:1fr}.book-aside{position:static;order:2}}
+@media(max-width:620px){.book-grid,.book-success-actions,.book-confirm-lookup-row{grid-template-columns:1fr}.book-section{padding:1rem}.book-hero{padding:1.5rem 1rem 1.25rem}.book-shell{padding:1rem}}
