@@ -1,0 +1,12 @@
+--- docs/recovery/2026-09-28-worker-corrected.js	(production 3bb576e8)
++++ docs/recovery/2026-10-05-commercial/dist/index.js	(production 4315c22e)
+@@ -301,6 +301,9 @@
+       return withHeaders(response2, htmlHeaders({ "Cache-Control": "public, max-age=0, must-revalidate" }), request.method);
+     }
+     if (url.pathname === "/about") return redirect(`https://${ROOT_HOST}/#mission`);
++    if (url.pathname === "/academy" || url.pathname === "/academy/") {
++      return redirect(`https://${ACADEMY_HOST}/`);
++    }
+     if (url.pathname === "/os" || url.pathname.startsWith("/os/")) {
+       return redirect(`https://${PRIMARY_APP_HOST}/`);
+     }
