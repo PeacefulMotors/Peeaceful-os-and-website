@@ -1,0 +1,20 @@
+[
+  {
+    "id": "53e345af0dfd4d2d996ca342f2bd11c9",
+    "pattern": "beta.peacefulmotors.com/*",
+    "script": "peaceful-motors-app",
+    "request_limit_fail_open": false
+  },
+  {
+    "id": "6373428c35da408e821809005372eeb8",
+    "pattern": "app.peacefulmotors.com/*",
+    "script": "peaceful-motors-app",
+    "request_limit_fail_open": false
+  },
+  {
+    "id": "2ff2428c28874c1495a157a20fb3ee06",
+    "pattern": "os.peacefulmotors.com/*",
+    "script": "peaceful-motors-app",
+    "request_limit_fail_open": false
+  }
+]
