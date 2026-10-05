@@ -1,0 +1,32 @@
+BEGIN;
+DO $test$
+DECLARE s uuid; u uuid:=gen_random_uuid(); t uuid:=gen_random_uuid(); denied boolean; cfg text; role_name text;
+BEGIN
+ SELECT id INTO s FROM public.shops ORDER BY id LIMIT 1;
+ SELECT value INTO cfg FROM public.app_data WHERE key='booking_windows';
+ INSERT INTO auth.users(id,email) VALUES(u,u||'@example.invalid'),(t,t||'@example.invalid');
+ INSERT INTO public.staff(user_id,name,role,shop_id) VALUES(u,'TEST schedule owner','owner',s::text),(t,'TEST schedule tech','tech',s::text);
+ PERFORM set_config('request.jwt.claim.sub',u::text,true);
+ PERFORM set_config('request.jwt.claim.role','authenticated',true);
+ EXECUTE 'SET LOCAL ROLE authenticated';
+ PERFORM public.owner_list_booking_exceptions();
+ denied:=false;
+ BEGIN PERFORM public.owner_set_booking_exception(NULL,'closed',true);
+ EXCEPTION WHEN raise_exception THEN denied:=SQLERRM='Date required';END;
+ ASSERT denied,'owner passed authorization and reached date validation';
+ EXECUTE 'RESET ROLE';
+ PERFORM set_config('request.jwt.claim.sub',t::text,true);
+ EXECUTE 'SET LOCAL ROLE authenticated';
+ denied:=false;BEGIN PERFORM public.owner_list_booking_exceptions();EXCEPTION WHEN raise_exception THEN denied:=SQLERRM='Not authorized';END;ASSERT denied,'tech list denial';
+ denied:=false;BEGIN PERFORM public.owner_set_booking_exception(NULL,'closed',true);EXCEPTION WHEN raise_exception THEN denied:=SQLERRM='Not authorized';END;ASSERT denied,'tech write denial';
+ EXECUTE 'RESET ROLE';
+ PERFORM set_config('request.jwt.claim.sub','',true);
+ PERFORM set_config('request.jwt.claim.role','anon',true);
+ EXECUTE 'SET LOCAL ROLE anon';
+ denied:=false;BEGIN PERFORM public.owner_list_booking_exceptions();EXCEPTION WHEN raise_exception THEN denied:=SQLERRM='Sign in required';WHEN insufficient_privilege THEN denied:=true;END;ASSERT denied,'anon list denial';
+ denied:=false;BEGIN PERFORM public.owner_set_booking_exception(NULL,'closed',true);EXCEPTION WHEN raise_exception THEN denied:=SQLERRM='Sign in required';WHEN insufficient_privilege THEN denied:=true;END;ASSERT denied,'anon write denial';
+ EXECUTE 'RESET ROLE';
+ ASSERT (SELECT value FROM public.app_data WHERE key='booking_windows')=cfg,'availability changed';
+END $test$;
+ROLLBACK;
+SELECT 'PASS: owner read/argument validation; technician/anon denied; no availability write' result;
