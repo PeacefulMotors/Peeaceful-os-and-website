@@ -1,59 +1,63 @@
 BEGIN;
-
 DO $test$
-DECLARE
-  shop uuid; uid uuid; other_shop uuid := gen_random_uuid();
-  tid uuid; eid uuid; ok boolean; rl text; vis text;
-  roles text[] := ARRAY['owner','admin','service_writer'];
+DECLARE s uuid; other_s uuid:=gen_random_uuid(); u uuid:=gen_random_uuid(); tech uuid:=gen_random_uuid();
+ outsider uuid:=gen_random_uuid(); t uuid:=gen_random_uuid(); other_t uuid:=gen_random_uuid();
+ j uuid:=gen_random_uuid(); n integer; denied boolean; rl text; e uuid;
 BEGIN
-  SELECT id INTO shop FROM public.shops ORDER BY id LIMIT 1;
-  SELECT user_id INTO uid FROM public.staff WHERE shop_id = shop::text LIMIT 1;
-  ASSERT uid IS NOT NULL, 'need staff';
-
-  PERFORM set_config('request.jwt.claims', json_build_object('sub', uid, 'role', 'authenticated')::text, true);
-  PERFORM set_config('request.jwt.claim.sub', uid::text, true);
-  PERFORM set_config('request.jwt.claim.role', 'authenticated', true);
-
-  FOREACH rl IN ARRAY roles LOOP
-    UPDATE public.staff SET role = rl WHERE user_id = uid;
-    INSERT INTO public.communication_threads(shop_id, owner_user_id, contact_email, visibility, folder)
-      VALUES (shop, uid, 'office@example.com', 'internal', 'inbox') RETURNING id INTO tid;
-    INSERT INTO public.communication_events(shop_id, owner_user_id, thread_id, channel, direction, visibility, body)
-      VALUES (shop, uid, tid, 'internal_note', 'outbound', 'customer', 'should force internal')
-      RETURNING id INTO eid;
-    SELECT visibility INTO vis FROM public.communication_events WHERE id = eid;
-    ASSERT vis = 'internal', rl || ' internal_note must force visibility=internal';
-  END LOOP;
-
-  UPDATE public.staff SET role = 'tech' WHERE user_id = uid;
-  ok := false;
-  BEGIN
-    INSERT INTO public.communication_events(shop_id, owner_user_id, thread_id, channel, direction, visibility, body)
-      VALUES (shop, uid, tid, 'internal_note', 'internal', 'internal', 'tech fail');
-  EXCEPTION WHEN others THEN ok := true;
-  END;
-  ASSERT ok, 'tech must not insert internal';
-
-  UPDATE public.staff SET role = 'owner', shop_id = other_shop::text WHERE user_id = uid;
-  ok := false;
-  BEGIN
-    INSERT INTO public.communication_events(shop_id, owner_user_id, thread_id, channel, direction, visibility, body)
-      VALUES (shop, uid, tid, 'sms', 'outbound', 'customer', 'cross');
-  EXCEPTION WHEN others THEN ok := true;
-  END;
-  ASSERT ok, 'cross-shop denied';
-
-  PERFORM set_config('request.jwt.claims', '{}', true);
-  PERFORM set_config('request.jwt.claim.role', 'anon', true);
-  ok := false;
-  BEGIN
-    IF EXISTS (SELECT 1 FROM public.communication_threads LIMIT 1) THEN
-      RAISE EXCEPTION 'anon saw threads';
-    END IF;
-    ok := true;
-  EXCEPTION WHEN others THEN ok := true;
-  END;
-  ASSERT ok, 'anon denied';
+ SELECT id INTO s FROM public.shops ORDER BY id LIMIT 1;
+ INSERT INTO auth.users(id,email) VALUES(u,u||'@example.invalid'),(tech,tech||'@example.invalid'),(outsider,outsider||'@example.invalid');
+ INSERT INTO public.shops(id,name,owner_user) VALUES(other_s,'TEST NON-CUSTOMER Inbox',outsider);
+ INSERT INTO public.staff(user_id,name,role,shop_id) VALUES
+ (u,'TEST Inbox office','owner',s::text),(tech,'TEST Inbox tech','tech',s::text),(outsider,'TEST Inbox other','owner',other_s::text);
+ INSERT INTO public.jobs(id,shop_id,assigned_tech,title) VALUES(j,s,tech,'TEST NON-CUSTOMER Inbox');
+ INSERT INTO public.communication_threads(id,shop_id,owner_user_id,contact_email,job_id,visibility) VALUES(t,s,u,'fixture@example.invalid',j,'internal');
+ INSERT INTO public.communication_threads(id,shop_id,owner_user_id,contact_email) VALUES(other_t,other_s,outsider,'fixture@example.invalid');
+ FOREACH rl IN ARRAY ARRAY['owner','admin','service_writer'] LOOP
+  UPDATE public.staff SET role=rl WHERE user_id=u;
+  PERFORM set_config('request.jwt.claim.sub',u::text,true);
+  PERFORM set_config('request.jwt.claim.role','authenticated',true);
+  EXECUTE 'SET LOCAL ROLE authenticated';
+  INSERT INTO public.communication_events(shop_id,thread_id,channel,direction,visibility,body)
+  VALUES(s,t,'internal_note','outbound','customer','TEST private note') RETURNING id INTO e;
+  ASSERT (SELECT visibility='internal' AND direction='internal' FROM public.communication_events WHERE id=e),'note forced internal and readable';
+  UPDATE public.communication_threads SET is_starred=true,folder='archived',archived_at=now() WHERE id=t;
+  GET DIAGNOSTICS n=ROW_COUNT; ASSERT n=1,'office star/archive';
+  denied:=false;
+  BEGIN INSERT INTO public.communication_events(shop_id,thread_id,channel,direction,body) VALUES(s,other_t,'email','inbound','cross-thread');
+  EXCEPTION WHEN check_violation THEN denied:=true; END;
+  ASSERT denied,'cross-shop thread linkage must fail';
+  EXECUTE 'RESET ROLE';
+ END LOOP;
+ PERFORM set_config('request.jwt.claim.sub',tech::text,true);
+ EXECUTE 'SET LOCAL ROLE authenticated';
+ SELECT count(*) INTO n FROM public.communication_events WHERE thread_id=t; ASSERT n=0,'tech private note read';
+ SELECT count(*) INTO n FROM public.communication_threads WHERE id=t; ASSERT n=0,'tech internal thread read';
+ denied:=false;
+ BEGIN INSERT INTO public.communication_events(shop_id,thread_id,channel,direction,visibility,body) VALUES(s,t,'internal_note','internal','internal','forbidden');
+ EXCEPTION WHEN insufficient_privilege THEN denied:=true; END;
+ ASSERT denied,'tech private note write';
+ UPDATE public.communication_threads SET is_starred=false WHERE id=t;GET DIAGNOSTICS n=ROW_COUNT;ASSERT n=0,'tech thread update';
+ EXECUTE 'RESET ROLE';
+ PERFORM set_config('request.jwt.claim.sub',outsider::text,true);
+ EXECUTE 'SET LOCAL ROLE authenticated';
+ SELECT count(*) INTO n FROM public.communication_events WHERE thread_id=t;ASSERT n=0,'cross-shop read';
+ denied:=false;
+ BEGIN INSERT INTO public.communication_events(shop_id,thread_id,channel,direction,body) VALUES(s,t,'email','inbound','forbidden');
+ EXCEPTION WHEN insufficient_privilege THEN denied:=true; END;
+ ASSERT denied,'cross-shop write';
+ EXECUTE 'RESET ROLE';
+ PERFORM set_config('request.jwt.claim.sub','',true);
+ PERFORM set_config('request.jwt.claim.role','anon',true);
+ EXECUTE 'SET LOCAL ROLE anon';
+ denied:=false;
+ BEGIN SELECT count(*) INTO n FROM public.communication_events;denied:=n=0;
+ EXCEPTION WHEN insufficient_privilege THEN denied:=true; END;
+ ASSERT denied,'anonymous read';
+ denied:=false;
+ BEGIN INSERT INTO public.communication_events(shop_id,owner_user_id,thread_id,channel,direction,body) VALUES(s,u,t,'email','inbound','forbidden');
+ EXCEPTION WHEN insufficient_privilege THEN denied:=true; END;
+ ASSERT denied,'anonymous write';
+ EXECUTE 'RESET ROLE';
 END $test$;
-
 ROLLBACK;
+SELECT 'PASS: office notes/star/archive; tech internal read/write denial; cross-shop linkage/read/write denial; anon denial; fixture-only rollback' result;
