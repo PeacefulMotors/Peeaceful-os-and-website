@@ -1,1 +1,1 @@
-PLACEHOLDER
+@/workspace/redteam-2026-10-05/commercial-ppi/dist/index.js
