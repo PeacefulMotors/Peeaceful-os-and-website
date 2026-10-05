@@ -1,38 +1,52 @@
-# Deploy source map (manual only)
+# Deploy source map (Peaceful Motors Workers)
 
-These directories are the exact production snapshots for Cloudflare Workers. They do **not** live under `everyone-app/**`, so the router CI workflow does not run on them. Do not enable CI from this folder.
+Paths under `deploy/**` are **manual** source mirrors. They do **not** match `everyone-app/**`, so the only CI workflow (`deploy-cloudflare-app-router.yml`) does **not** run from these commits. Do not enable CI deploy from this tree.
 
-## peaceful-motors-free-commercial
+## Workers
 
-| Field | Value |
-|---|---|
-| Source dir | `deploy/commercial-worker/` |
-| Hostnames | `peacefulmotors.com`, `www.peacefulmotors.com`, `booking.peacefulmotors.com` (+ zone route `booking.peacefulmotors.com/*`) |
-| Production version | `880dba0c-4bde-4d2e-aaf0-67c0bfad9be3` |
-| Rollback | `4315c22e-445b-4efc-a628-703dd7303b6c` |
-| Manual deploy | See below |
+| Worker | Hostnames | Source dir | Production version | Rollback |
+|---|---|---|---|---|
+| `peaceful-motors-free-commercial` | `peacefulmotors.com`, `www`, `booking`, `academy` | `deploy/commercial-worker/` | `880dba0c-4bde-4d2e-aaf0-67c0bfad9be3` | `4315c22e-445b-4efc-a628-703dd7303b6c` |
+| `peaceful-motors-app` | `app.peacefulmotors.com`, `os`, `beta` | `deploy/peaceful-motors-app/` | `fda1bb2d-8177-4688-aff9-dbaf21d6eecc` | (prior app version per Cloudflare dashboard) |
+| `peaceful-os-app-router` | router / `everyone-app` | `everyone-app/` (unchanged this pass) | `4d8f0612…` | prior router version |
+
+## Manual deploy (commercial)
 
 ```bash
 export PATH=~/.local/node22/bin:$PATH
 export CLOUDFLARE_ACCOUNT_ID=b0f16a5aafa1f7a3a3264871c1191565
 cd deploy/commercial-worker
-npx wrangler versions upload --message "..."
-# test preview URL, then:
-npx wrangler versions deploy <VERSION>@100% --name peaceful-motors-free-commercial -y
+npx wrangler versions upload --name peaceful-motors-free-commercial
+npx wrangler versions deploy <NEW_VERSION_ID>@100% --name peaceful-motors-free-commercial -y
 ```
 
-**Never** deploy `recovery/site/public` alone. Always use this full bundle (`dist/` + `public/` + `wrangler.json`).
+Rollback commercial:
 
-## peaceful-motors-app
+```bash
+npx wrangler versions deploy 4315c22e-445b-4efc-a628-703dd7303b6c@100% --name peaceful-motors-free-commercial -y
+```
 
-| Field | Value |
-|---|---|
-| Source dir | `deploy/peaceful-motors-app/` |
-| Hostnames / routes | `app.peacefulmotors.com/*`, `os.peacefulmotors.com/*`, `beta.peacefulmotors.com/*` |
-| Production version | `fda1bb2d-8177-4688-aff9-dbaf21d6eecc` |
-| Rollback | `32853771-07aa-4921-ae5c-400927f768c8` (confirm) |
-| Manual deploy | Capture noted; no wrangler project file recovered — keep manual until a verified wrangler.json is added |
+## GitHub sync status (Oct 5 final pass)
 
-## peaceful-os-app-router
+Byte-compared against local commit `684239612eb60cbdd2f7befd62bfcb34ce78b310` and live bundle `/workspace/redteam-2026-10-05/commercial-ppi/`.
 
-Source remains `everyone-app/` (not duplicated here). Live `4d8f0612…`; rollback `100b508d…`.
+**On main (EQUAL):** README, VERSION.md files, wrangler.json (trailing newline only DIFF), `_headers`, `robots.txt`, `sitemap.xml`, `booking-app.html`, `booking-confirmed.html`, `prices.html`, `services.html`, `explore.html`, `contact.html`, `index.html`, `policies.html`, app `routes.json`.
+
+**Still missing or incomplete on main (need `git push` of commit 6842396):**
+- `commercial-worker/dist/index.js` (pointer stub only — **do not deploy**)
+- `commercial-worker/public/app.js` (PPI catalog — critical)
+- `commercial-worker/public/styles.css`
+- `commercial-worker/public/assets/peaceful-motors-logo.webp`
+- `commercial-worker/public/{book,privacy,dashcam,warranty,terms,limits-and-liability,consulting-agreement}.html`
+- `peaceful-motors-app/worker.js`
+
+Finish from a machine with repo write credentials (box had no git HTTPS auth):
+
+```bash
+# Preferred: push the exact local commit that already holds the full tree
+cd /path/to/Peeaceful-os-and-website   # with commit 6842396
+git push origin main
+# then sha256sum every deploy/ file vs commercial-ppi / live app script
+```
+
+No secrets belong in this tree. App `worker.js` uses `env.*` only (anon Supabase keys OK if present; redact secret keys).
