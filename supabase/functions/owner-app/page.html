@@ -39,7 +39,7 @@ async function openInboxThread(id){
   const note=document.createElement('textarea');note.id='inboxNote';note.maxLength=8000;note.rows=4;note.placeholder='Private note — visible to owner, admin and service writer only';note.setAttribute('aria-label','Internal office note');box.append(note);
   box.append(inboxButton('Save internal note',async()=>{
    const body=note.value.trim();if(!body)throw Error('Enter a note first.');
-   await inboxQuery(sb.from('communication_events').insert({shop_id:workspace.shop_id,thread_id:t.id,customer_id:t.customer_id,vehicle_id:t.vehicle_id,booking_id:t.booking_id,job_id:t.job_id,channel:'internal_note',direction:'internal',visibility:'internal',folder:'inbox',body,status:'recorded'}));
+   await inboxQuery(sb.from('communication_events').insert({shop_id:workspace.shop_id,thread_id:t.id,customer_id:t.customer_id,vehicle_id:t.vehicle_id,booking_id:t.booking_id,job_id:t.job_id,estimate_id:t.estimate_id,invoice_id:t.invoice_id,channel:'internal_note',direction:'internal',visibility:'internal',folder:'inbox',body,status:'recorded'}));
    await inboxQuery(sb.from('communication_threads').update({last_activity_at:new Date().toISOString()}).eq('id',t.id).eq('shop_id',workspace.shop_id));
    await loadInbox();await openInboxThread(t.id);inboxStatus('Internal note saved. No message sent.');
   }));
@@ -60,11 +60,16 @@ async function inboxLinks(box,t){
  for(const [table,label,field,title]of [
   ['vehicles','Linked vehicle','vehicle_id',r=>[r.year,r.make,r.model].filter(Boolean).join(' ')||r.id],
   ['bookings','Linked booking','booking_id',r=>[r.short_ref,r.booking_date,r.service].filter(Boolean).join(' · ')||r.id],
-  ['jobs','Linked job','job_id',r=>r.title||r.id]]){
-  let rows=[];if(t.customer_id)rows=await inboxQuery(sb.from(table).select(table==='vehicles'?'id,year,make,model':table==='bookings'?'id,short_ref,booking_date,service':'id,title').eq('shop_id',workspace.shop_id).eq('customer_id',t.customer_id).limit(200));
+  ['jobs','Linked job','job_id',r=>r.title||r.id],
+  ['estimates','Linked estimate','estimate_id',r=>[r.status,r.total].filter(v=>v!=null).join(' · ')+' · '+r.id],
+  ['invoices','Linked invoice','invoice_id',r=>[r.status,r.total].filter(v=>v!=null).join(' · ')+' · '+r.id]]){
+  let rows=[];
+  if(table==='estimates'||table==='invoices'){
+   if(t.job_id)rows=await inboxQuery(sb.from(table).select('id,status,total').eq('shop_id',workspace.shop_id).eq('job_id',t.job_id).limit(200));
+  }else if(t.customer_id)rows=await inboxQuery(sb.from(table).select(table==='vehicles'?'id,year,make,model':table==='bookings'?'id,short_ref,booking_date,service':'id,title').eq('shop_id',workspace.shop_id).eq('customer_id',t.customer_id).limit(200));
   const item=inboxSelect(label,rows,t[field],title);selectors[field]=item.select;holder.append(item.wrapper);
  }
- box.append(inboxButton('Save linked records',async()=>{const p={};for(const [key,s]of Object.entries(selectors))p[key]=s.value||null;await changeInboxThread(p);inboxStatus('Linked records saved.')}));
+ box.append(inboxButton('Save linked records',async()=>{const p={};for(const [key,s]of Object.entries(selectors))p[key]=s.value||null;if(p.job_id!==t.job_id){p.estimate_id=null;p.invoice_id=null}await changeInboxThread(p);inboxStatus(p.job_id!==t.job_id?'Job changed. Select its estimate or invoice and save again.':'Linked records saved.')}));
 }
 async function newInboxThread(){
  try{

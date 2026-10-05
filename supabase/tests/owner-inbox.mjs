@@ -23,4 +23,21 @@ nodes=walk(el('threadDetail'));await nodes.find(n=>n.textContent==='Star').oncli
 nodes=walk(el('threadDetail'));await nodes.find(n=>n.textContent==='Archive').onclick();assert(tables.communication_threads[0].archived_at);
 for(const q of queries.filter(q=>q.action!=='insert'))assert(q.filters.some(([k,v])=>k==='shop_id'&&v==='shop'),'all Inbox reads/updates shop scoped');
 assert(!script.includes('api.resend.com'));assert(!script.includes('SUPABASE_SERVICE_ROLE_KEY'));
-console.log('PASS: Inbox list/detail, safe text rendering, office note save, star/archive, shop-scoped queries, no email transport or server secret.');
+tables.communication_threads[0].job_id='job';
+tables.jobs=[{id:'job',shop_id:'shop',customer_id:'customer',title:'TEST job'}];
+tables.estimates=[{id:'estimate',shop_id:'shop',job_id:'job',status:'draft',total:10}];
+tables.invoices=[{id:'invoice',shop_id:'shop',job_id:'job',status:'unpaid',total:10}];
+await vm.runInContext("openInboxThread('thread')",ctx);
+nodes=walk(el('threadDetail'));
+nodes.find(n=>n.attrs['aria-label']==='Linked estimate').value='estimate';
+nodes.find(n=>n.attrs['aria-label']==='Linked invoice').value='invoice';
+await nodes.find(n=>n.textContent==='Save linked records').onclick();
+assert.equal(tables.communication_threads[0].estimate_id,'estimate');
+assert.equal(tables.communication_threads[0].invoice_id,'invoice');
+await vm.runInContext("openInboxThread('thread')",ctx);
+nodes=walk(el('threadDetail'));
+assert.equal(nodes.find(n=>n.attrs['aria-label']==='Linked estimate').value,'estimate');
+assert.equal(nodes.find(n=>n.attrs['aria-label']==='Linked invoice').value,'invoice');
+for(const q of queries.filter(q=>['estimates','invoices'].includes(q.table)))assert(q.filters.some(([k,v])=>k==='job_id'&&v==='job'));
+console.log('PASS: Inbox list/detail, safe text, private notes, star/archive, linked estimate/invoice save and reopen, scoped queries, no transport secret.');
+
