@@ -1,17 +1,9 @@
-# Recovered public-site source
+# Incomplete public asset mirror
 
-Target: Cloudflare Worker `peaceful-motors-free-commercial`.
+This folder is a **partial** copy of production static assets for recovery/diffing.
 
-This directory preserves the public files fetched from production on 2026-09-12 UTC so the site is no longer absent from canonical GitHub source.
+**Do NOT run `wrangler deploy` from here.** Production deploys require the full merged bundle (Worker `dist/index.js` + complete `public/` + wrangler.json), currently kept at:
 
-Owner-approved rate corrections applied in source:
-- Standard: $150/hr
-- European: $175/hr
-- Diesel: $195/hr, two-hour minimum
-- Diesel after hours: $265/hr
-- Exotic: $275/hr
-- Small engine: $80/hr
+`docs/recovery/2026-10-05-commercial/`
 
-Status: SOURCE RECOVERED / PRODUCTION UNTESTED. This commit does not deploy the Worker. The live `/prices` route must be deployed and rechecked before completion. The live `/terms` route already contains these governing figures.
-
-Do not treat a browser query parameter as proof of payment. Do not send customer messages from tests.
+Deploying this folder alone would omit the Worker script, many HTML pages, sitemap/robots, and assets binding config.
