@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Disallow: /os/
+Sitemap: https://peacefulmotors.com/sitemap.xml
