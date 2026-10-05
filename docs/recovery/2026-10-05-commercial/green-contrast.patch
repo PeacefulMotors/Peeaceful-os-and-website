@@ -1,0 +1,7 @@
+--- styles.css (3bb576e8 / pre-cleanup)
++++ styles.css (4315c22e)
+@@ -1 +1 @@
+-:root{--maroon:#6c030d;--deep:#4a0209;--olive:#245720;--green:#2e7d32;--ink:#211a18;...
++:root{--maroon:#6c030d;--deep:#4a0209;--olive:#245720;--green:#256b29;--ink:#211a18;...
+
+Exact replace: --green:#2e7d32 → --green:#256b29 (one occurrence in :root).
